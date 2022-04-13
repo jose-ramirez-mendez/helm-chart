@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "modernpets.fullname" . }}-test-connection"
+  labels:
+    {{- include "modernpets.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "modernpets.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

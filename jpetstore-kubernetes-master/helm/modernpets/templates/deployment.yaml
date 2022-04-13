@@ -1,45 +1,61 @@
-kind: Deployment
 apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: jpetstoreweb
+  name: {{ include "modernpets.fullname" . }}
+  labels:
+    {{- include "modernpets.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
   selector:
-      matchLabels:
-        app: jpetstoreweb
+    matchLabels:
+      {{- include "modernpets.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
-        app: jpetstoreweb
+        {{- include "modernpets.selectorLabels" . | nindent 8 }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "modernpets.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-      - name: jpetstoreweb
-        image: "{{ .Values.image.repository }}/jpetstoreweb:{{ .Values.image.tag }}"
-        imagePullPolicy: Always
-        env:
-          - name: VERSION
-            value: "1"
-          - name: mysqlUrl
-            valueFrom:
-              secretKeyRef:
-                name: mysql-creds
-                key: mysql.url
-          - name: mysqlUser
-            valueFrom:
-                secretKeyRef:
-                  name: mysql-creds
-                  key: mysql.username
-          - name: mysqlPass
-            valueFrom:
-              secretKeyRef:
-                name: mysql-creds
-                key: mysql.password
-        ports:
-        - containerPort: 9080
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 9080
-          initialDelaySeconds: 10
-          periodSeconds: 5
-
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
