@@ -3,12 +3,12 @@ entries:
   helm-chart-sources:
   - apiVersion: v2
     appVersion: 1.16.0
-    created: "2022-04-13T09:24:10.872084-06:00"
+    created: "2022-04-13T09:34:56.203265-06:00"
     description: A Helm chart for Kubernetes
     digest: 0397728d7a775880f63b8f1306ce23d49bf79688483b4853729a5a68fce04d3f
     name: helm-chart-sources
     type: application
     urls:
-    - https://github.com/democloudmockdata/helm-chart/helm-chart-sources-0.1.0.tgz
+    - https://democloudmockdata.github.io/helm-chart/helm-chart-sources-0.1.0.tgz
     version: 0.1.0
-generated: "2022-04-13T09:24:10.871281-06:00"
+generated: "2022-04-13T09:34:56.202426-06:00"
